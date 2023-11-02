@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stilo.css">
+    <title>Formulário de Pagamento</title>
+    
+</head>
+<body>
+    <h1>Pagamento</h1>
+    <form id="payment-form">
+        
+        
+        
+        <label for="payment-method">Forma de Pagamento:</label>
+        <select id="payment-method" name="payment-method" required>
+            <option value="credito">Cartão de Crédito</option>
+            <option value="debito">Cartão de Débito</option>
+            <option value="pix">Pix</option>
+        </select>
+        
+        <input class="inputpag" type="submit" value="Pagar">
+    </form>
+
+    <h2>Total a Pagar:</h2>
+    <p>R$ 0.00</p>
+
+    
+</body>
+</html>
