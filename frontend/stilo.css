@@ -115,16 +115,9 @@ body {
   color: #000;
 }
 
-
 .imagem {
   width: 100px;
 }
-
-
-.descricao {
-  width: 300px;
-}
-
 
 .preco {
   width: 100px;
@@ -284,4 +277,3 @@ select {
   width: 100px;
   height: 100px;
 }
-
