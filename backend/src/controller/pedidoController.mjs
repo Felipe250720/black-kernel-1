@@ -1,13 +1,13 @@
-import { pedidoModel } from '../models/pedidoModel.mjs';
+import PedidoModel from '../models/pedidoModel.mjs';
 
-export class pedidoController {
+class PedidoController {
   static async criarPedido(req, res) {
-    const { id_item, id_mesa, qtde, id_funcionario } = req.body;
+    const { id_item, id_mesa, qtde } = req.body;
 
     try {
-      const result = await pedidoModel.criarPedido(id_item, id_mesa, qtde, id_funcionario);
+      const novoPedido = await PedidoModel.criarPedido(id_item, id_mesa, qtde);
 
-      res.json({ mensagem: 'Pedido criado com sucesso', pedidoId: result.id });
+      res.json({ mensagem: 'Pedido criado com sucesso', pedido: novoPedido });
     } catch (error) {
       console.error(error);
       res.status(500).json({ mensagem: 'Erro interno do servidor' });
@@ -16,36 +16,32 @@ export class pedidoController {
 
   static async listarPedidos(req, res) {
     try {
-      const pedidos = await pedidoModel.listarPedidos();
+      const pedidos = await PedidoModel.listarPedidos();
 
-      res.json(pedidos);
+      res.json({ pedidos });
     } catch (error) {
       console.error(error);
       res.status(500).json({ mensagem: 'Erro interno do servidor' });
     }
   }
 
-  static atualizarPedido(pedido) {
-    return new Promise((resolve, reject) => {
-      db.run('UPDATE pedidos SET id_item = ?, id_mesa = ?, qtde = ?, id_funcionario = ? WHERE id = ?', [pedido.id_item, pedido.id_mesa, pedido.qtde, pedido.id_funcionario, pedido.id], function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  static async removerPedido(req, res) {
+    const { pedidoId } = req.params;
+
+    try {
+      const pedidoExistente = await PedidoModel.buscarPedidoPorId(pedidoId);
+      if (!pedidoExistente) {
+        return res.status(404).json({ mensagem: 'Pedido não encontrado' });
+      }
+
+      await PedidoModel.removerPedido(pedidoId);
+
+      res.json({ mensagem: 'Pedido removido com sucesso' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ mensagem: 'Erro interno do servidor' });
+    }
   }
-  
-  static deletarPedido(id) {
-    return new Promise((resolve, reject) => {
-      db.run('DELETE FROM pedidos WHERE id = ?', [id], function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
-  }  
 }
+
+export default PedidoController;

@@ -1,17 +1,25 @@
-// /app/models/MesaModel.mjs
-import sqlite3 from 'sqlite3';
-import dbConfig from '../config/dbConfig.mjs';
+import db from '../config/dbConfig.mjs';
 
-const db = new sqlite3.Database(dbConfig.databaseFile, dbConfig.options);
-
-export class mesaModel {
-  static criarMesa(idMesa, nomeUsuario, idPedido) {
+class MesaModel {
+  static buscarMesaPorNomeUsuario(nomeUsuario) {
     return new Promise((resolve, reject) => {
-      db.run('INSERT INTO mesas (id_mesa, nome_usuario, id_pedido) VALUES (?, ?, ?)', [idMesa, nomeUsuario, idPedido], function (err) {
+      db.query('SELECT * FROM mesa WHERE nome_usuario = ?', [nomeUsuario], (err, results) => {
         if (err) {
           reject(err);
         } else {
-          resolve({ id: this.lastID });
+          resolve(results.length > 0 ? results[0] : null);
+        }
+      });
+    });
+  }
+
+  static criarMesa(nomeUsuario) {
+    return new Promise((resolve, reject) => {
+      db.query('INSERT INTO mesa (nome_usuario) VALUES (?)', [nomeUsuario], (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ id: results.insertId, nomeUsuario });
         }
       });
     });
@@ -19,37 +27,15 @@ export class mesaModel {
 
   static listarMesas() {
     return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM mesas', (err, rows) => {
+      db.query('SELECT * FROM mesa', (err, results) => {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
-        }
-      });
-    });
-  }
-
-  static atualizarMesa(mesa) {
-    return new Promise((resolve, reject) => {
-      db.run('UPDATE mesas SET nome_usuario = ?, id_pedido = ? WHERE id_mesa = ?', [mesa.nome_usuario, mesa.id_pedido, mesa.id_mesa], function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
-  }
-
-  static deletarMesa(idMesa) {
-    return new Promise((resolve, reject) => {
-      db.run('DELETE FROM mesas WHERE id_mesa = ?', [idMesa], function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
+          resolve(results);
         }
       });
     });
   }
 }
+
+export default MesaModel;

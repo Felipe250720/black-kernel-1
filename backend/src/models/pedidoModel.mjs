@@ -1,17 +1,25 @@
-// /app/models/PedidoModel.mjs
-import sqlite3 from 'sqlite3';
-import dbConfig from '../config/dbConfig.mjs';
+import db from '../config/dbConfig.mjs';
 
-const db = new sqlite3.Database(dbConfig.databaseFile, dbConfig.options);
-
-export class pedidoModel {
-  static criarPedido(idItem, idMesa, qtde, idFuncionario) {
+class PedidoModel {
+  static criarPedido(id_item, id_mesa, qtde) {
     return new Promise((resolve, reject) => {
-      db.run('INSERT INTO pedidos (id_item, id_mesa, qtde, id_funcionario) VALUES (?, ?, ?, ?)', [idItem, idMesa, qtde, idFuncionario], function (err) {
+      db.query('INSERT INTO pedido (mesa_id, cliente_id) VALUES (?, ?, ?)', [id_item ,id_mesa, qtde], (err, results) => {
         if (err) {
           reject(err);
         } else {
-          resolve({ id: this.lastID });
+          resolve({ id: results.insertId, mesaId, clienteId });
+        }
+      });
+    });
+  }
+
+  static buscarPedidoPorId(pedidoId) {
+    return new Promise((resolve, reject) => {
+      db.query('SELECT * FROM pedido WHERE id = ?', [pedidoId], (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results.length > 0 ? results[0] : null);
         }
       });
     });
@@ -19,25 +27,15 @@ export class pedidoModel {
 
   static listarPedidos() {
     return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM pedidos', (err, rows) => {
+      db.query('SELECT * FROM pedido', (err, results) => {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
-        }
-      });
-    });
-  }
-
-  static listarPedidosPorMesa(idMesa) {
-    return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM pedidos WHERE id_mesa = ?', [idMesa], (err, rows) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows);
+          resolve(results);
         }
       });
     });
   }
 }
+
+export default PedidoModel;

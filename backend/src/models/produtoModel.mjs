@@ -1,17 +1,25 @@
-// /app/models/ProdutoModel.mjs
-import sqlite3 from 'sqlite3';
-import dbConfig from '../config/dbConfig.mjs';
+import db from '../config/dbConfig.mjs';
 
-const db = new sqlite3.Database(dbConfig.databaseFile, dbConfig.options);
-
-export class produtoModel {
-  static criarProduto(nomeProduto, quantidade, valorProduto) {
+class ProdutoModel {
+  static criarProduto(nome, valor, quantidade, descricao, marca, grupo) {
     return new Promise((resolve, reject) => {
-      db.run('INSERT INTO produtos (nome_produto, quantidade, valor_produto) VALUES (?, ?, ?)', [nomeProduto, quantidade, valorProduto], function (err) {
+      db.query('INSERT INTO produto (nome, valor, quantidade, descricao, marca, grupo) VALUES (?, ?, ?, ?, ?, ?)', [nome, valor, quantidade, descricao, marca, grupo], (err, results) => {
         if (err) {
           reject(err);
         } else {
-          resolve({ id: this.lastID });
+          resolve({ id: results.insertId, nome, valor, quantidade, descricao, marca, grupo });
+        }
+      });
+    });
+  }
+
+  static buscarProdutoPorId(produtoId) {
+    return new Promise((resolve, reject) => {
+      db.query('SELECT * FROM produto WHERE id = ?', [produtoId], (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results.length > 0 ? results[0] : null);
         }
       });
     });
@@ -19,39 +27,15 @@ export class produtoModel {
 
   static listarProdutos() {
     return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM produtos', (err, rows) => {
+      db.query('SELECT * FROM produto', (err, results) => {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
+          resolve(results);
         }
       });
     });
   }
-
-  static atualizarProduto(produto) {
-    return new Promise((resolve, reject) => {
-      db.run('UPDATE produtos SET nome_produto = ?, quantidade = ?, valor_produto = ? WHERE id = ?', [produto.nome_produto, produto.quantidade, produto.valor_produto, produto.id], function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
-  }
-
-  static deletarProduto(id) {
-    return new Promise((resolve, reject) => {
-      db.run('DELETE FROM produtos WHERE id = ?', [id], function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
-  }
-
-  // Implemente outros métodos CRUD necessários para a entidade Produto
 }
+
+export default ProdutoModel;
